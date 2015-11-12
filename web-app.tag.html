@@ -1,0 +1,52 @@
+<web-app>
+
+  <button onclick={addWidget} widget-type="widget-one">Add Widget One</button>
+  <button onclick={addWidget} widget-type="widget-two">Add Widget Two</button>
+
+  <!-- this script tag is optional -->
+  <script>
+    this.defaultWidget = "widget-one";
+    this.widgetsLoaded = [];
+
+    addWidget(e) {
+      var self = this;
+      var widgetType, widget;
+
+      if (typeof e == "string") {
+        widgetType = e;
+      } else {
+        widgetType = e.target.getAttribute("widget-type") || this.defaultWidget;
+      }
+
+      widget = document.createElement(widgetType);
+
+      // if widget is loaded already, we just add it
+      if (this.widgetsLoaded.indexOf(widgetType) > -1) {
+        this.root.appendChild(widget);
+      } else {
+        this.loadWidget(widgetType, () => {
+          self.root.appendChild(widget);
+        });
+      }
+    }
+
+    loadWidget(widgetType, cb) {
+      var self = this;
+      var elImport = document.createElement("link");
+
+      elImport.rel = "import";
+      elImport.href = "./" + widgetType + ".tag.html";
+      document.head.appendChild(elImport);
+
+      elImport.onload = () => {
+        // widget is loaded, adding to the list
+        self.widgetsLoaded.push(widgetType);
+
+        if (cb && typeof cb == "function") {
+          cb();
+        }
+      }
+    }
+  </script>
+
+</web-app>
